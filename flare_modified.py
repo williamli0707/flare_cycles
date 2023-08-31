@@ -45,7 +45,7 @@ def main():
         KIC = line.rstrip('\n')
         files = sorted(glob('KICs/' + KIC + "/*.flare"))
         num_files = len(files)
-        data[ind] = []
+        data.append([])
         for x in range(num_files):
             df = pd.read_table(files[x], comment="#", delimiter=",", names=NAMES)
             tot += df.size
