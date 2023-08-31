@@ -17,7 +17,8 @@ Description of output data: This program outputs graphs and the fit_data associa
 
 From the command line: python flare_cycles.py
 '''
-
+import csv
+from _decimal import Decimal
 
 import emcee
 from glob import glob
@@ -475,10 +476,10 @@ def mcmc(x,y,yerr, m_guess, b_guess):
     xl = np.array([np.min(x), np.max(x)])
 
     for m, b, lnf in samples[np.random.randint(len(samples), size=100)]:
-        plt.plot(x+lum, m*x+b, color="k", alpha=0.1)
+        plt.plot(x, m*x+b, color="k", alpha=0.1)
     samples[:, 2] = np.exp(samples[:, 2])
     m_mcmc, b_mcmc, f_mcmc = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]), zip(*np.percentile(samples, [16, 50, 84],axis=0)))
-    plt.plot(x+lum, m_mcmc[0]*x+ b_mcmc[0], color="r", lw=2, alpha=0.8)
+    plt.plot(x, m_mcmc[0]*x+ b_mcmc[0], color="r", lw=2, alpha=0.8)
     #print("b: ",b_mcmc, "m: ",m_mcmc)
     return [ m_mcmc[0], b_mcmc[0]], [ m_mcmc[1],  b_mcmc[1]]
 
@@ -854,11 +855,14 @@ def plot_evf_sub_mean(KIC, time, mean_frequency, mean_frequency_err,  group_size
 
 
 def main():
-        file = 'target_single.txt'
+        np.set_printoptions(threshold=sys.maxsize)
+        # file = 'targets/target_single.txt'
+        file = 'targets/targets_full.txt'
         target_count = get_size(file)
         targets = open(file, "r")
 
         evf_sub_mean_data, target_index = init_data_array(target_count*len(GROUPING_SIZE) + 2)
+        print(evf_sub_mean_data)
 
         for line in targets:
 
@@ -866,7 +870,7 @@ def main():
             files = sorted(glob('KICs/'+KIC+"/*.flare"))
             num_files = len(files)
             print("\nWorking on the fractional_lum analysis for KIC: "+str(KIC)+",   " + str(target_index-1) + "/" +str(target_count))
-            fractional_lum(KIC, files, num_files, showe=SHOWE,errore=ERRORE,save=SAVEPLOT, OK68=OK68_CUTOFF)
+            # fractional_lum(KIC, files, num_files, showe=SHOWE,errore=ERRORE,save=SAVEPLOT, OK68=OK68_CUTOFF)
 
             print("Working on the energy_vs_frequency analysis")
             quarterly_evf_energy, quarterly_evf_log_frequency, popt, perr, total_quarter_duration, time, success  = plot_evf(KIC, files, num_files, showe=SHOWE,errore=ERRORE,save=SAVEPLOT, OK68=OK68_CUTOFF)
@@ -882,24 +886,31 @@ def main():
 
         targets.close()
         #if(SAVETXT==True): np.savetxt(bin_+'/'+FIT_DATA_DIR+'/evf_mean_sub.txt', evf_sub_mean_data, fmt = '% 20s', delimiter=' ', newline='\n', header='', footer='', comments='# ')
+        print("evf data", evf_sub_mean_data)
 
+        with open("./output_evf_data2.csv", "w+") as my_csv:
+            csvWriter = csv.writer(my_csv, delimiter=',')
+            csvWriter.writerows(evf_sub_mean_data)
 
-        for energyConstant in FIXED_ENEGRY_LIST:
-
-            targets = open(file, "r")
-            fixed_energy = energyConstant + EPOINT
-            tvf_data, target_index = init_data_array(target_count + 2)
-
-            for line in targets:
-
-                KIC = line.rstrip('\n')
-                print("Working on the time_vs_frequency analysis for KIC: "+str(KIC)+ " at energy: "+str(fixed_energy))
-                files = glob('KICs/'+KIC+"/*.flare")
-                num_files = len(files)
-                plot_tvf(KIC, files, num_files, tvf_data, fixed_energy, target_index, showt=SHOWT, errort = ERRORT,save=SAVEPLOT)
-                target_index += 1
-
-            targets.close()
+        # for energyConstant in FIXED_ENEGRY_LIST:
+        #
+        #     targets = open(file, "r")
+        #     fixed_energy = energyConstant + EPOINT
+        #     tvf_data, target_index = init_data_array(target_count + 2)
+        #
+        #     for line in targets:
+        #
+        #         KIC = line.rstrip('\n')
+        #         print("Working on the time_vs_frequency analysis for KIC: "+str(KIC)+ " at energy: "+str(fixed_energy))
+        #         files = glob('KICs/'+KIC+"/*.flare")
+        #         num_files = len(files)
+        #         plot_tvf(KIC, files, num_files, tvf_data, fixed_energy, target_index, showt=SHOWT, errort = ERRORT,save=SAVEPLOT)
+        #         target_index += 1
+        #
+        #     print("tvf data", tvf_data)
+        #     targets.close()
             #if(SAVETXT==True): np.savetxt(bin_+'/'+FIT_DATA_DIR+'/fixed_energy_equals_'+str(fixed_energy)+'.txt', tvf_data, fmt = '% 20s', delimiter=' ', newline='\n', header='', footer='', comments='# ')
+
+
 
 main()
