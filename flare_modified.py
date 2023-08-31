@@ -61,7 +61,7 @@ def main():
                 np.array(df['duration']),
                 np.array(df['t_peak_aflare1']),
                 np.array(df['t_FWHM_aflare1']),
-                np.array(df['t_amplitude_aflare1']),
+                np.array(df['amplitude_aflare1']),
                 np.array(df['flare_chisq']),
                 np.array(df['KS_d_model']),
                 np.array(df['KS_p_model']),
