@@ -108,7 +108,7 @@ print('done loading data')
 
 model = tf.keras.Sequential([
     # tf.keras.layers.Input(shape=[None], ragged=True),
-    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(128, activation='relu', input_shape=(NUM_DAYS_INPUT,)),
     tf.keras.layers.Dense(1024, activation='relu'),
     tf.keras.layers.Dense(1024, activation='relu'),
     tf.keras.layers.Dense(1024, activation='relu'),
@@ -128,7 +128,7 @@ history = model.fit(
     # tf.ragged.constant(inputs),
     np.array(inputs),
     np.array(outputs),
-    epochs=50,
+    epochs=20,
     # Suppress logging.
     verbose=1,
     # Calculate validation results on 20% of the training data.
