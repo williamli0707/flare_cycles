@@ -47,19 +47,21 @@ tot = 0
 totrows = 0
 ind = 0
 data = []
-power_data_powers = []
-power_data_dates = []
-power_data_durations = []
 
 inputs = []
 outputs = []
 
 for line in tqdm(targets, desc="Loading data", total=target_count):
-    if ind: break
+    power_data_powers = []
+    power_data_dates = []
+    power_data_durations = []
+
+    # if ind: break
     KIC = line.rstrip('\n')
     files = sorted(glob('KICs/' + KIC + "/*.flare"))
     num_files = len(files)
     data.append([])
+
     for x in range(num_files):
         df = pd.read_table(files[x], comment="#", delimiter=",", names=NAMES)
         tot += df.size
@@ -72,18 +74,11 @@ for line in tqdm(targets, desc="Loading data", total=target_count):
 
         # print("processing file", files[x], "with", len(energy), "energy values and", len(positive[0]), "positive energy values")
 
-        start = time.process_time()
-        power_data_durations += dur[positive[0]]
-        power_data_powers += [(energy[i] / dur[i]) for i in positive[0]]
-        power_data_dates += [start[i] for i in positive[0]]
-        print("python default inline loop", time.process_time() - start)
-        start = time.process_time()
-
         power_data_durations += [dur[i] for i in positive[0]]
         power_data_powers += [(energy[i] / dur[i]) for i in positive[0]]
         power_data_dates += [start[i] for i in positive[0]]
 
-    print("should be equal:")
+    # print("should be equal:")
     power_data = zip(power_data_dates, power_data_powers, power_data_durations)
     power_data = np.array(sorted(power_data))
     input_case = []
@@ -123,9 +118,10 @@ model.compile(
     loss='mean_absolute_error')
 
 print('model compiled')
+print('length of inputs', len(inputs))
 
 history = model.fit(
-    np.array(inputs),
+    inputs,
     np.array(outputs),
     epochs=50,
     # Suppress logging.
