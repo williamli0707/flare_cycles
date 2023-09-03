@@ -118,8 +118,8 @@ model = tf.keras.Sequential([
 print('model instantiated')
 
 model.compile(
-    optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
-    loss='mean_absolute_error')
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+    loss='mean_squared_error')
 
 print('model compiled')
 print('length of inputs', len(inputs))
