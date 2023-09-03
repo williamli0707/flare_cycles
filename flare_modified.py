@@ -41,11 +41,19 @@ def main():
     ind = 0
     target = 0
     data = []
+    power_data_powers = []
+    power_data_dates = []
+
+    inputs = []
+    outputs = []
+
     for line in targets:
         KIC = line.rstrip('\n')
         files = sorted(glob('KICs/' + KIC + "/*.flare"))
         num_files = len(files)
         data.append([])
+        power_data_powers.append([])
+        power_data_dates.append([])
         for x in range(num_files):
             df = pd.read_table(files[x], comment="#", delimiter=",", names=NAMES)
             tot += df.size
@@ -55,20 +63,24 @@ def main():
             positive = np.where(energy > 0)
             start = np.array(df['t_start'])
             dur = np.array(df['duration'])
-            data[ind] = [
-                np.array(df['amplitude']),
-                np.array(df['FWHM']),
-                np.array(df['duration']),
-                np.array(df['t_peak_aflare1']),
-                np.array(df['t_FWHM_aflare1']),
-                np.array(df['amplitude_aflare1']),
-                np.array(df['flare_chisq']),
-                np.array(df['KS_d_model']),
-                np.array(df['KS_p_model']),
-                np.array(df['KS_d_cont']),
-                np.array(df['KS_p_cont']),
-                np.array(df['Equiv_Dur'])
-            ]
+
+            power_data_powers[ind] = [(energy[i] / dur[i]) for i in positive[0]]
+            power_data_dates[ind] = [start[i] for i in positive[0]]
+
+            # data[ind] = [
+            #     np.array(df['amplitude']),
+            #     np.array(df['FWHM']),
+            #     np.array(df['duration']),
+            #     np.array(df['t_peak_aflare1']),
+            #     np.array(df['t_FWHM_aflare1']),
+            #     np.array(df['amplitude_aflare1']),
+            #     np.array(df['flare_chisq']),
+            #     np.array(df['KS_d_model']),
+            #     np.array(df['KS_p_model']),
+            #     np.array(df['KS_d_cont']),
+            #     np.array(df['KS_p_cont']),
+            #     np.array(df['Equiv_Dur'])
+            # ]
             # print(energy)
             if ind == target:
                 print(df)
@@ -76,9 +88,6 @@ def main():
                 print(energy)
                 print()
                 print(files[x])
-
-                print("\n\n\n\n\ntest")
-                print(positive)
 
                 # for i in range(0, len(df)):
                 #     x_axis.append(start[i])
@@ -89,19 +98,10 @@ def main():
                     y_axis.append(energy[i] / dur[i])
 
         if ind == target:
-            # y_axis = np.log(y_axis)
+            y_axis = np.log10(y_axis)
+            plt.title("Power vs start times for KIC " + line + ", logarithmic y scale")
             plt.scatter(x_axis, y_axis, c='blue')
-            # plt.ylim(-100, 100)
-            # plt.title("Energy vs start times for KIC " + line)
-            # plt.ylim(-500, 500)
-            plt.xlim(400, 800)
-            plt.title("Power (+) vs start times for KIC " + line)
-            plt.show()
-
-            y_axis = np.log(y_axis)
-            plt.title("Power (+) vs start times for KIC " + line + ", logarithmic y scale")
-            plt.scatter(x_axis, y_axis, c='blue')
-            plt.xlim(400, 800)
+            # plt.xlim(400, 800)
             plt.show()
 
 
@@ -110,19 +110,26 @@ def main():
     print(tot)
     print(totrows)
 
+    power_data = zip(power_data_dates, power_data_powers)
+    power_data = sorted(power_data)
+
+
+    input_case = []
+    for i in range(0, len(y_axis)):
+        input_case.append(y_axis[i])
+        if i > 300:
+            input_case.pop(0)
+
+
+
     print("\n\n\n\n\n")
     model = tf.keras.Sequential([
-        tf.keras.layers.Rescaling(1. / 255, input_shape=(180, 180, 3)),
-        tf.keras.layers.Conv2D(16, 3, padding='same', activation='relu'),
-        tf.keras.layers.MaxPooling2D(),
-        tf.keras.layers.Conv2D(32, 3, padding='same', activation='relu'),
-        tf.keras.layers.MaxPooling2D(),
-        tf.keras.layers.Conv2D(64, 3, padding='same', activation='relu'),
-        tf.keras.layers.MaxPooling2D(),
-        tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Flatten(),
         tf.keras.layers.Dense(128, activation='relu'),
-        tf.keras.layers.Dense(5)
+        tf.keras.layers.Dense(1024, activation='relu'),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(1, activation='relu')
     ])
+
+
 
 main()
