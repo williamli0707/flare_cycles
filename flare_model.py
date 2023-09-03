@@ -128,7 +128,7 @@ history = model.fit(
     # tf.ragged.constant(inputs),
     np.array(inputs),
     np.array(outputs),
-    epochs=20,
+    epochs=1,
     # Suppress logging.
     verbose=1,
     # Calculate validation results on 20% of the training data.
