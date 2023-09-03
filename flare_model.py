@@ -13,23 +13,13 @@ NAMES = (
 "flare_chisq", "KS_d_model", "KS_p_model", "KS_d_cont", "KS_p_cont", "Equiv_Dur", "ED68i", "ED90i")
 
 NUM_DAYS_INPUT = 300
-MIN_NUM_INPUTS = 80
+MIN_NUM_INPUTS = 50
+
+NUM_IN_INPUTS = 400
+MIN_FUTURE_OUTPUT = 50
 
 
 def get_size(file):
-    '''
-    Returning the number of KICs in a targettext file.
-
-    Parameters:
-    -------------------------------------------------------------------------
-    file (string): The path to the file containing the list of KICs.
-
-
-    Returns:
-    -------------------------------------------------------------------------
-    get_size_col.size (integer): The number of KICs in the file.
-    '''
-
     temp = pd.read_table(file, names=['kic'])
     get_size_col = temp['kic'].values
     return get_size_col.size
@@ -82,7 +72,18 @@ for line in tqdm(targets, desc="Loading data", total=target_count):
     power_data = zip(power_data_dates, power_data_powers, power_data_durations)
     power_data = np.array(sorted(power_data))
     input_case = []
-    # if len(power_data) - 5 < 5: continue # if the power data is too small might as well not use the data
+
+    for index in range(0, len(power_data) - MIN_FUTURE_OUTPUT):
+        i = power_data[index]
+        input_case.append(i[0])
+        if len(input_case) > NUM_DAYS_INPUT:
+            input_case.pop(0)
+            tmp = power_data[index + 1:index + 1 + MIN_FUTURE_OUTPUT, :]
+            inputs.append(input_case)
+            outputs.append(np.average(tmp[:, 1], weights=tmp[:, 2]))
+
+    '''
+    # old code for using window of time as input
     for index in range(0, len(power_data) - 1):
         i = power_data[index]
         input_case.append(i[0])
@@ -98,6 +99,7 @@ for line in tqdm(targets, desc="Loading data", total=target_count):
             inputs.append(input_case)
             outputs.append(np.average(tmp[:, 1], weights=tmp[:, 2]))
             # the output should represent the average of power output over next 10 days -> weighted average of next 10 days of stuff
+    '''
     ind += 1
 
 # print(inputs)
@@ -105,9 +107,11 @@ for line in tqdm(targets, desc="Loading data", total=target_count):
 print('done loading data')
 
 model = tf.keras.Sequential([
+    # tf.keras.layers.Input(shape=[None], ragged=True),
     tf.keras.layers.Dense(128, activation='relu'),
     tf.keras.layers.Dense(1024, activation='relu'),
-    tf.keras.layers.Dense(128, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(1024, activation='relu'),
     tf.keras.layers.Dense(1, activation='relu')
 ])
 
@@ -121,7 +125,8 @@ print('model compiled')
 print('length of inputs', len(inputs))
 
 history = model.fit(
-    inputs,
+    # tf.ragged.constant(inputs),
+    np.array(inputs),
     np.array(outputs),
     epochs=50,
     # Suppress logging.
