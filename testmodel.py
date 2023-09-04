@@ -29,7 +29,7 @@ model.compile(
 model.fit(
   np.array(inputs),
   np.array(outputs),
-  epochs=20,
+  epochs=1000,
   verbose=1,
   validation_split=0.1
 )
