@@ -106,9 +106,15 @@ for line in tqdm(targets, desc="Loading data", total=target_count):
 # print(outputs)
 print('done loading data')
 
+# inputs = np.random.randint(low=1000, high=2000, size=(167441, NUM_DAYS_INPUT))
+# outputs = np.random.randint(low=2000, high=2500, size=(167441,))
+
+# inputs = np.array(inputs)[0:5000, :]
+# outputs = np.array(outputs)[0:5000]
+
 model = tf.keras.Sequential([
     # tf.keras.layers.Input(shape=[None], ragged=True),
-    tf.keras.layers.Dense(NUM_DAYS_INPUT * 2, activation='relu', input_shape=(NUM_DAYS_INPUT,)),
+    tf.keras.layers.Dense(128, activation='relu', input_shape=(NUM_DAYS_INPUT,)),
     tf.keras.layers.Dense(1024, activation='relu'),
     tf.keras.layers.Dense(1024, activation='relu'),
     tf.keras.layers.Dense(1024, activation='relu'),
