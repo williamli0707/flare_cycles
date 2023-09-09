@@ -18,6 +18,10 @@ MIN_NUM_INPUTS = 50
 NUM_IN_INPUTS = 400
 MIN_FUTURE_OUTPUT = 50
 
+BIN_LENGTH=10
+
+assert NUM_IN_INPUTS % BIN_LENGTH == 0
+
 
 def get_size(file):
     temp = pd.read_table(file, names=['kic'])
@@ -78,8 +82,19 @@ for line in tqdm(targets, desc="Loading data", total=target_count):
         input_case.append(i[0])
         if len(input_case) > NUM_DAYS_INPUT:
             input_case.pop(0)
+            cnt = 0
+            tot = 0
+            input_case_insert = []
+            for k in range(0, len(input_case)):
+                tot += power_data[k][1]
+                cnt += 1
+                if cnt == BIN_LENGTH:
+                    input_case_insert.append(tot / cnt)
+                    tot = 0
+                    cnt = 0
+
             tmp = power_data[index + 1:index + 1 + MIN_FUTURE_OUTPUT, :]
-            inputs.append(input_case)
+            inputs.append(input_case_insert)
             outputs.append(np.average(tmp[:, 1], weights=tmp[:, 2]))
 
     '''
