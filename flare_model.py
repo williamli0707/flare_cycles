@@ -115,7 +115,7 @@ print('done loading data')
 model = tf.keras.Sequential([
     # tf.keras.layers.Input(shape=[None], ragged=True),
     tf.keras.layers.Dense(128, activation='relu', input_shape=(NUM_DAYS_INPUT,)),
-    tf.keras.layers.Dense(1024, activation='relu'),
+    tf.keras.layers.Dense(512, activation='relu'),
     tf.keras.layers.Dense(1024, activation='relu'),
     tf.keras.layers.Dense(1024, activation='relu'),
     tf.keras.layers.Dense(1, activation='relu')
