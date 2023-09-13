@@ -65,23 +65,34 @@ for line in tqdm(targets, desc="Loading data", total=target_count):
     power_data = zip(power_data_dates, power_data_powers, power_data_durations)
     power_data = np.array(sorted(power_data))
     input_case = []
+    ctr = 0
 
-    # old code for using window of time as input
-    for index in range(0, len(power_data) - MIN_FUTURE_OUTPUT):
+    for index in range(0, len(power_data) - 1):
         i = power_data[index]
-        input_case.append(i[0])
-        while i[0] - input_case[0] > NUM_DAYS_INPUT: input_case.pop(0)
+        input_case.append(i)
+        while i[0] - input_case[0][0] > NUM_DAYS_INPUT: input_case.pop(0)
         if len(input_case) >= MIN_NUM_INPUTS and power_data[index + 1][0] - i[0] <= 10:
+            use = True
             tmpind = index + 1
             if tmpind >= len(power_data): break
             while tmpind < len(power_data) and power_data[tmpind][0] - i[0] <= 10: tmpind += 1
-            # print("shape of tmp", np.array(tmp).shape, index + 1, tmpind)
-            # print(tuple(tmp))
-            # print(np.array([i[1] for i in tmp]).shape, np.array([i[2] for i in tmp]).shape)
+            tmp = power_data[index + 1:tmpind, :] # for output
+            # binning:
             input_case_insert = []
-            last = input
-            inputs.append(input_case)
-            tmp = power_data[index + 1:index + 1 + MIN_FUTURE_OUTPUT, :]
+            start_date = power_data[index + 1][0]
+            for bin1 in range(0, int(NUM_DAYS_INPUT / BIN_LENGTH)): #bin1 because bin is a keyword
+                bin_start = start_date + bin1 * BIN_LENGTH
+                bin_end = bin_start + BIN_LENGTH
+                bin_data = [x for x in input_case if bin_start <= x[0] < bin_end]
+                if len(bin_data) == 0:
+                    # use = False
+                    # ctr += 1
+                    # break
+                    input_case_insert.append(0)
+                else:
+                    input_case_insert.append(np.average(np.array(bin_data)[:, 1], weights=np.array(bin_data)[:, 2]))
+            if not use: continue
+            inputs.append(input_case_insert)
             outputs.append(np.average(tmp[:, 1], weights=tmp[:, 2]))
             # the output should represent the average of power output over next 10 days -> weighted average of next 10 days of stuff
 
@@ -90,6 +101,7 @@ for line in tqdm(targets, desc="Loading data", total=target_count):
 # print(inputs)
 # print(outputs)
 print('done loading data')
+print(ctr, "times we had to skip a bin because there was no data in it")
 
 # inputs = np.random.randint(low=1000, high=2000, size=(167441, NUM_DAYS_INPUT))
 # outputs = np.random.randint(low=2000, high=2500, size=(167441,))
@@ -119,7 +131,7 @@ history = model.fit(
     # tf.ragged.constant(inputs),
     np.array(inputs),
     np.array(outputs),
-    epochs=20,
+    epochs=40,
     # Suppress logging.
     verbose=1,
     # Calculate validation results on 20% of the training data.

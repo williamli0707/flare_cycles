@@ -149,13 +149,10 @@ print('model compiled')
 print('length of inputs', len(inputs))
 
 history = model.fit(
-    # tf.ragged.constant(inputs),
     np.array(inputs),
     np.array(outputs),
     epochs=20,
-    # Suppress logging.
     verbose=1,
-    # Calculate validation results on 20% of the training data.
     validation_split=0.1,
     batch_size=50
 )
