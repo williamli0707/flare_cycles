@@ -20,7 +20,7 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     # NUM_DAYS_INPUT = 100
     MIN_NUM_INPUTS = 50
     # BIN_LENGTH=10 # days
-    BIN_LENGTH = input("Enter bin length in days: ")
+    # BIN_LENGTH = input("Enter bin length in days: ")
     MIN_FUTURE_OUTPUT = 50
 
     assert NUM_DAYS_INPUT % BIN_LENGTH == 0
