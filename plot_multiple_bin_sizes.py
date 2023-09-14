@@ -14,3 +14,4 @@ plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend([('train_' + str(i)) for i in bin_sizes] + [('val' + str(i)) for i in bin_sizes], loc='upper left')
 plt.show()
+#
