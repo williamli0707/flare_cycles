@@ -156,3 +156,12 @@ history = model.fit(
     validation_split=0.1,
     batch_size=50
 )
+
+tot = 0
+for i in range(0, len(inputs)):
+    ctot = 0
+    for j in inputs[i]: ctot += j
+    ctot /= len(inputs[i])
+    tot += (outputs[i] - ctot) ** 2
+
+print("MSE for average of inputs:", tot / len(inputs))
