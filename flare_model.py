@@ -151,7 +151,7 @@ print('length of inputs', len(inputs))
 history = model.fit(
     np.array(inputs),
     np.array(outputs),
-    epochs=20,
+    epochs=40,
     verbose=1,
     validation_split=0.1,
     batch_size=50
