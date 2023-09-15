@@ -33,6 +33,7 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     targets = open(file, "r")
 
     ind = 0
+    ctr = 0
     data = []
 
     inputs = []
@@ -67,7 +68,6 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
         power_data = zip(power_data_dates, power_data_powers, power_data_durations)
         power_data = np.array(sorted(power_data))
         input_case = []
-        ctr = 0
 
         for index in range(0, len(power_data) - 1):
             i = power_data[index]
@@ -81,16 +81,17 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
                 tmp = power_data[index + 1:tmpind, :] # for output
                 # binning:
                 input_case_insert = []
-                start_date = power_data[index + 1][0]
+                start_date = input_case[0][0]
                 for bin1 in range(0, int(NUM_DAYS_INPUT / BIN_LENGTH)): #bin1 because bin is a keyword
                     bin_start = start_date + bin1 * BIN_LENGTH
                     bin_end = bin_start + BIN_LENGTH
                     bin_data = [x for x in input_case if bin_start <= x[0] < bin_end]
                     if len(bin_data) == 0:
-                        # use = False
-                        # ctr += 1
-                        # break
-                        input_case_insert.append(0)
+                        use = False
+                        # print("aborting after", bin1, "bins because there was no data in bin", bin_start, "to", bin_end)
+                        ctr += 1
+                        break
+                        # input_case_insert.append(0)
                     else:
                         input_case_insert.append(np.average(np.array(bin_data)[:, 1], weights=np.array(bin_data)[:, 2]))
                 if not use: continue
@@ -103,9 +104,11 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     # print(inputs)
     # print(outputs)
     print('done loading data')
-    print(ctr, "times we had to skip a bin because there was no data in it")
+    print(ctr, "times we had to skip a bin because there was insufficient data in it")
+    print("checking for nan:", np.argwhere(np.isnan(inputs)))
+    print("checking for inf:", np.argwhere(np.isinf(inputs)))
 
-    # inputs = np.random.randint(low=1000, high=2000, size=(167441, NUM_DAYS_INPUT))
+    # inputs = np.random.randint(low=1000, high=2000, size=(167441, int(NUM_DAYS_INPUT/BIN_LENGTH)))
     # outputs = np.random.randint(low=2000, high=2500, size=(167441,))
 
     # inputs = np.array(inputs)[0:5000, :]
@@ -114,7 +117,7 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     model = tf.keras.Sequential([
         # tf.keras.layers.Input(shape=[None], ragged=True),
         tf.keras.layers.Dense(128, activation='relu', input_shape=(int(NUM_DAYS_INPUT / BIN_LENGTH),)),
-        tf.keras.layers.Dense(1024, activation='relu'),
+        tf.keras.layers.Dense(512, activation='relu'),
         tf.keras.layers.Dense(1024, activation='relu'),
         tf.keras.layers.Dense(1024, activation='relu'),
         tf.keras.layers.Dense(1, activation='relu')
