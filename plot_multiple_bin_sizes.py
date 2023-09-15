@@ -9,9 +9,9 @@ for i in bin_sizes:
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
 
-plt.title('model accuracy')
+plt.title('model loss per epoch by bin size')
 plt.ylabel('loss')
 plt.xlabel('epoch')
-plt.legend([('train_' + str(i)) for i in bin_sizes] + [('val' + str(i)) for i in bin_sizes], loc='upper left')
+plt.legend([('train_' + str(i)) for i in bin_sizes] + [('val_' + str(i)) for i in bin_sizes], loc='upper left')
 plt.show()
 #
