@@ -1,3 +1,4 @@
+import keras
 import numpy as np
 import pandas as pd
 from glob import glob
@@ -117,9 +118,13 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     model = tf.keras.Sequential([
         # tf.keras.layers.Input(shape=[None], ragged=True),
         tf.keras.layers.Dense(128, activation='relu', input_shape=(int(NUM_DAYS_INPUT / BIN_LENGTH),)),
+        keras.layers.LeakyReLU(alpha=0.01),
         tf.keras.layers.Dense(1024, activation='relu'),
+        keras.layers.LeakyReLU(alpha=0.01),
         tf.keras.layers.Dense(2048, activation='relu'),
+        keras.layers.LeakyReLU(alpha=0.01),
         tf.keras.layers.Dense(1024, activation='relu'),
+        keras.layers.LeakyReLU(alpha=0.01),
         tf.keras.layers.Dense(1, activation='relu')
     ])
 
