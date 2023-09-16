@@ -117,8 +117,8 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     model = tf.keras.Sequential([
         # tf.keras.layers.Input(shape=[None], ragged=True),
         tf.keras.layers.Dense(128, activation='relu', input_shape=(int(NUM_DAYS_INPUT / BIN_LENGTH),)),
-        tf.keras.layers.Dense(512, activation='relu'),
         tf.keras.layers.Dense(1024, activation='relu'),
+        tf.keras.layers.Dense(2048, activation='relu'),
         tf.keras.layers.Dense(1024, activation='relu'),
         tf.keras.layers.Dense(1, activation='relu')
     ])
