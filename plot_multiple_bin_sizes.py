@@ -12,6 +12,8 @@ for i in bin_sizes:
 plt.title('model loss per epoch by bin size')
 plt.ylabel('loss')
 plt.xlabel('epoch')
-plt.legend([('train_' + str(i)) for i in bin_sizes] + [('val_' + str(i)) for i in bin_sizes], loc='upper left')
+a = [('train_' + str(i)) for i in bin_sizes]
+b = [('val_' + str(i)) for i in bin_sizes]
+plt.legend(np.vstack((a,b)).reshape((-1,),order='F'), loc='upper left')
 plt.show()
 #

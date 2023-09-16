@@ -6,6 +6,7 @@ import sys
 import tensorflow as tf
 from tqdm import tqdm
 from sklearn.manifold import TSNE
+import flare_model_time_binning
 
 NAMES = ("t_start", "t_stop", "t_peak", "amplitude", "FWHM", "duration", "t_peak_aflare1", "t_FWHM_aflare1", "amplitude_aflare1",
 "flare_chisq", "KS_d_model", "KS_p_model", "KS_d_cont", "KS_p_cont", "Equiv_Dur", "ED68i", "ED90i")
@@ -23,7 +24,36 @@ def scale_to_01_range(x):
     starts_from_zero = x - np.min(x)
     return starts_from_zero / value_range
 
-def main(BIN_LENGTH, NUM_DAYS_INPUT):
+def main_sne2(BIN_LENGTH, NUM_DAYS_INPUT):
+    inputs, outputs, model, history = flare_model_time_binning.main(BIN_LENGTH, NUM_DAYS_INPUT)
+    model2 = tf.keras.Model(inputs=model.input, outputs=model.layers[-2].output)
+    test_ds = np.concatenate(
+        list(inputs.take(5).map(lambda x, y: x)))  # get five batches of images and convert to numpy array
+    features = model2(test_ds)
+    labels = np.argmax(model(test_ds), axis=-1)
+    tsne = TSNE(n_components=2).fit_transform(features)
+
+    def scale_to_01_range(x):
+        value_range = (np.max(x) - np.min(x))
+        starts_from_zero = x - np.min(x)
+        return starts_from_zero / value_range
+
+    tx = tsne[:, 0]
+    ty = tsne[:, 1]
+
+    tx = scale_to_01_range(tx)
+    ty = scale_to_01_range(ty)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    current_tx = np.take(tx)
+    current_ty = np.take(ty)
+    ax.scatter(current_tx, current_ty)
+
+    ax.legend(loc='best')
+    plt.show()
+
+def main_sne(BIN_LENGTH, NUM_DAYS_INPUT):
     MIN_NUM_INPUTS = 50
 
     assert NUM_DAYS_INPUT % BIN_LENGTH == 0
