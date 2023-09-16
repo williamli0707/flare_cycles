@@ -26,6 +26,8 @@ def scale_to_01_range(x):
 
 def main_sne2(BIN_LENGTH, NUM_DAYS_INPUT):
     inputs, outputs, model, history = flare_model_time_binning.main(BIN_LENGTH, NUM_DAYS_INPUT)
+    inputs = np.array(inputs)
+    outputs = np.array(outputs)
     model2 = tf.keras.Model(inputs=model.input, outputs=model.layers[-2].output)
     test_ds = np.concatenate(
         list(inputs.take(5).map(lambda x, y: x)))  # get five batches of images and convert to numpy array
