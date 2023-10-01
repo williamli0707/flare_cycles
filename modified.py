@@ -41,9 +41,8 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     outputs = []
 
     for line in tqdm(targets, desc="Loading data", total=target_count):
-        power_data_powers = []
+        power_data_ed = []
         power_data_dates = []
-        power_data_durations = []
 
         # if ind: break
         KIC = line.rstrip('\n')
@@ -54,24 +53,21 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
         for x in range(num_files):
             df = pd.read_table(files[x], comment="#", delimiter=",", names=NAMES)
             # grabbing the energy (equivalent duration) column from each file, sorting, then including only the positive values so it can be logged
-            energy = np.array(df['Equiv_Dur'])
-            positive = np.where(energy > 0)
+            ed = np.array(df['Equiv_Dur'])
             start = np.array(df['t_start'])
-            dur = np.array(df['duration'])
 
             # print("processing file", files[x], "with", len(energy), "energy values and", len(positive[0]), "positive energy values")
 
-            power_data_durations += [dur[i] for i in positive[0]]
-            power_data_powers += [(energy[i] / dur[i]) for i in positive[0]]
-            power_data_dates += [start[i] for i in positive[0]]
+            power_data_ed += ed.tolist()
+            power_data_dates += start.tolist()
 
         # print("should be equal:")
-        power_data = zip(power_data_dates, power_data_powers, power_data_durations)
+        power_data = zip(power_data_dates, power_data_ed)
         power_data = np.array(sorted(power_data))
         input_case = []
 
-        for index in range(0, len(power_data) - 1):
-            i = power_data[index]
+        for index, i in enumerate(power_data):
+            if index == len(power_data) - 1: break
             input_case.append(i)
             while i[0] - input_case[0][0] > NUM_DAYS_INPUT: input_case.pop(0)
             if len(input_case) >= MIN_NUM_INPUTS and power_data[index + 1][0] - i[0] <= 10:
@@ -94,10 +90,10 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
                         # break
                         input_case_insert.append(0)
                     else:
-                        input_case_insert.append(np.average(np.array(bin_data)[:, 1], weights=np.array(bin_data)[:, 2]))
+                        input_case_insert.append(np.average(np.array(bin_data)[:, 1]))
                 if not use: continue
                 inputs.append(input_case_insert)
-                outputs.append(np.average(tmp[:, 1], weights=tmp[:, 2]))
+                outputs.append(np.average(tmp[:, 1]))
                 # the output should represent the average of power output over next 10 days -> weighted average of next 10 days of stuff
 
         ind += 1
