@@ -137,7 +137,7 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
         # tf.ragged.constant(inputs),
         np.array(inputs),
         np.array(outputs),
-        epochs=10,
+        epochs=2,
         # Suppress logging.
         verbose=1,
         # Calculate validation results on 20% of the training data.
