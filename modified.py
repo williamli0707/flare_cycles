@@ -111,23 +111,23 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     # inputs = np.array(inputs)[0:5000, :]
     # outputs = np.array(outputs)[0:5000]
 
+    normalizer = tf.keras.layers.Normalization(axis=-1)
+    normalizer.adapt(np.array(inputs))
+
     model = tf.keras.Sequential([
         # tf.keras.layers.Input(shape=[None], ragged=True),
+        normalizer,
         tf.keras.layers.Dense(128, activation='relu', input_shape=(int(NUM_DAYS_INPUT / BIN_LENGTH),)),
-        keras.layers.LeakyReLU(alpha=0.01),
         tf.keras.layers.Dense(1024, activation='relu'),
-        keras.layers.LeakyReLU(alpha=0.01),
         tf.keras.layers.Dense(2048, activation='relu'),
-        keras.layers.LeakyReLU(alpha=0.01),
         tf.keras.layers.Dense(1024, activation='relu'),
-        keras.layers.LeakyReLU(alpha=0.01),
         tf.keras.layers.Dense(1, activation='relu')
     ])
 
     print('model instantiated')
 
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
         loss='mean_squared_error')
 
     print('model compiled')
