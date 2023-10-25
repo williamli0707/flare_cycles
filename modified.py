@@ -64,7 +64,7 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
         verbose=1,
         # Calculate validation results on 20% of the training data.
         validation_split=0.1,
-        batch_size=50
+        batch_size=256
     )
 
     tot = 0
