@@ -23,6 +23,7 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     if not os.path.exists('./data/time_nd_' + str(BIN_LENGTH) + '_' + str(NUM_DAYS_INPUT) + '.npz'):
         store_time(BIN_LENGTH, NUM_DAYS_INPUT)
 
+    assert os.path.exists('./data/time_' + str(BIN_LENGTH) + '_' + str(NUM_DAYS_INPUT) + '.npz')
     data = np.load('./data/time_' + str(BIN_LENGTH) + '_' + str(NUM_DAYS_INPUT) + '.npz', allow_pickle=True)
     inputs = data['inputs']
     outputs = data['outputs']
