@@ -127,7 +127,7 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
     print('model instantiated')
 
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.1),
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
         loss='mean_squared_error')
 
     print('model compiled')
