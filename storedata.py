@@ -197,7 +197,8 @@ def store_time_nd(BIN_LENGTH, NUM_DAYS_INPUT):
     if not os.path.exists('./data'):
         os.mkdir('./data')
 
-    np.savez('./data/time_nd_' + str(BIN_LENGTH) + '_' + str(NUM_DAYS_INPUT) + '.npz', inputs=inputs, outputs=outputs)
+    print("saving to " + os.getcwd() + '/data/time_nd_' + str(BIN_LENGTH) + '_' + str(NUM_DAYS_INPUT) + '.npz')
+    np.savez(os.getcwd() + '/data/time_nd_' + str(BIN_LENGTH) + '_' + str(NUM_DAYS_INPUT) + '.npz', inputs=inputs, outputs=outputs)
 
 def store_smooth(BIN_LENGTH, NUM_DAYS_INPUT):
     MIN_NUM_INPUTS = 50
