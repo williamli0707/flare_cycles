@@ -20,7 +20,7 @@ def get_size(file):
     return get_size_col.size
 
 def main(BIN_LENGTH, NUM_DAYS_INPUT):
-    if not os.path.exists('./data/time_' + str(BIN_LENGTH) + '_' + str(NUM_DAYS_INPUT) + '.npz'):
+    if not os.path.exists('./data/time_nd_' + str(BIN_LENGTH) + '_' + str(NUM_DAYS_INPUT) + '.npz'):
         store_time(BIN_LENGTH, NUM_DAYS_INPUT)
 
     data = np.load('./data/time_' + str(BIN_LENGTH) + '_' + str(NUM_DAYS_INPUT) + '.npz', allow_pickle=True)
@@ -59,7 +59,7 @@ def main(BIN_LENGTH, NUM_DAYS_INPUT):
         # tf.ragged.constant(inputs),
         np.array(inputs),
         np.array(outputs),
-        epochs=2,
+        epochs=15,
         # Suppress logging.
         verbose=1,
         # Calculate validation results on 20% of the training data.
